@@ -1,45 +1,68 @@
-
-import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { useDrag, useDrop } from 'react-dnd';
-import { addNode, renameNode, deleteNode, moveNode } from '../features/fileSystemSlice';
-import { FaFolder, FaFolderOpen, FaFile, FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
+import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { useDrag, useDrop } from "react-dnd";
+import {
+  addNode,
+  renameNode,
+  deleteNode,
+  moveNode,
+} from "../features/fileSystemSlice";
+import {
+  FaFolder,
+  FaFolderOpen,
+  FaFile,
+  FaPlus,
+  FaEdit,
+  FaTrash,
+} from "react-icons/fa";
 
 export default function FileNode({ node, path, onSelect }) {
   const [expanded, setExpanded] = useState(true);
+  const [fileInput, setFileInput] = useState(false);
+
   const dispatch = useDispatch();
   const fullPath = [...path, node.name];
-  const isFile = node.type === 'file';
-  // const type = isFile ? 'file' : 'folder';
+  const isFile = node.type === "file";
 
   const [{ isOver }, dropRef] = useDrop({
-    accept: 'node',
-    drop: (item) => dispatch(moveNode({ sourcePath: item.path, destPath: fullPath })),
-    collect: monitor => ({ isOver: monitor.isOver() }),
+    accept: "node",
+    drop: (item) =>
+      dispatch(moveNode({ sourcePath: item.path, destPath: fullPath })),
+    collect: (monitor) => ({ isOver: monitor.isOver() }),
   });
 
   const [{}, dragRef] = useDrag({
-    type: 'node',
+    type: "node",
     item: { path: fullPath },
     canDrag: () => path.length > 0, // don't drag the root
   });
 
-  const handleToggle = () => { if (!isFile) setExpanded(!expanded); };
+  const handleToggle = () => {
+    if (!isFile) setExpanded(!expanded);
+  };
 
-  const handleCreate = () => {
+  const handleCreate = (t) => {
+    setFileInput(false);
     try {
-      const t = window.prompt('Type (file/folder):');
-      const name = window.prompt('Name:');
-      if (!['file','folder'].includes(t)) throw new Error('Invalid type');
-      dispatch(addNode({ parentPath: fullPath, node: { name, type: t, ...(t==='folder'?{children:[]}:{}) } }));
-    } catch(e) { alert(e.message); }
+      const name = window.prompt("Name:");
+      dispatch(
+        addNode({
+          parentPath: fullPath,
+          node: { name, type: t, ...(t === "folder" ? { children: [] } : {}) },
+        })
+      );
+    } catch (e) {
+      alert(e.message);
+    }
   };
 
   const handleRename = () => {
     try {
-      const name = window.prompt('New name:', node.name);
+      const name = window.prompt("New name:", node.name);
       dispatch(renameNode({ path: fullPath, newName: name }));
-    } catch(e) { alert(e.message); }
+    } catch (e) {
+      alert(e.message);
+    }
   };
 
   const handleDelete = () => {
@@ -49,29 +72,75 @@ export default function FileNode({ node, path, onSelect }) {
   };
 
   return (
-    <div
-      ref={dropRef}
-      className={`file-node${isOver?' over':''}`}
-    >
-      <div
-        ref={dragRef}
-        className="node-header"
-        onClick={handleToggle}
-      >
-        {isFile ? <FaFile /> : (expanded ? <FaFolderOpen /> : <FaFolder />)}
+    <div ref={dropRef} className={`file-node${isOver ? " over" : ""}`}>
+      <div ref={dragRef} className="node-header" onClick={handleToggle}>
+        {isFile ? (
+          <FaFile color="gray" />
+        ) : expanded ? (
+          <FaFolderOpen color="orange" />
+        ) : (
+          <FaFolder color="orange" />
+        )}
         <span
-          className={isFile?'clickable':''}
-          onClick={e=>{e.stopPropagation(); isFile&&onSelect(fullPath);}}
-        >{node.name}</span>
+          className={isFile ? "clickable" : ""}
+          onClick={(e) => {
+            e.stopPropagation();
+            isFile && onSelect(fullPath);
+          }}
+        >
+          {node.name}
+        </span>
         <div className="actions">
-          {!isFile && <FaPlus onClick={e=>{e.stopPropagation(); handleCreate();}} />}
-          <FaEdit onClick={e=>{e.stopPropagation(); handleRename();}} />
-          <FaTrash onClick={e=>{e.stopPropagation(); handleDelete();}} />
+          {!isFile && (
+            <div className="add-menu" onMouseLeave={() => setFileInput(false)}>
+              <FaPlus
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setFileInput((bool) => !bool);
+                }}
+                color="blue"
+              />
+              {fileInput && (
+                <div className="menu">
+                  <button
+                    className="menu-item"
+                    onClick={() => handleCreate("folder")}
+                  >
+                    Folder
+                  </button>
+                  <button
+                    className="menu-item"
+                    onClick={() => handleCreate("file")}
+                  >
+                    File
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+          {node.name !== "root" && (
+            <>
+              <FaEdit
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRename();
+                }}
+                color="green"
+              />
+              <FaTrash
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete();
+                }}
+                color="orangered"
+              />
+            </>
+          )}
         </div>
       </div>
       {expanded && node.children && (
         <div className="node-children">
-          {node.children.map((c,i)=>(
+          {node.children.map((c, i) => (
             <FileNode key={i} node={c} path={fullPath} onSelect={onSelect} />
           ))}
         </div>
