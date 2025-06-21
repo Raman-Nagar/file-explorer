@@ -1,0 +1,73 @@
+/* Flex layout */
+.app-container {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.explorer-container {
+  display: flex;
+  width: 100%;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 280px;
+  min-width: 200px;
+  max-width: 320px;
+  border-right: 1px solid #ddd;
+  overflow-y: auto;
+  background: #f9f9f9;
+}
+
+.node-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+.node-header:hover {
+  background: #ececec;
+}
+.node-header span {
+  margin-left: 6px;
+  flex-grow: 1;
+}
+.clickable {
+  cursor: pointer;
+}
+.actions {
+  display: flex;
+  gap: 4px;
+}
+.node-children {
+  padding-left: 16px;
+}
+
+/* Content */
+.content-area {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+}
+.placeholder {
+  color: #666;
+  font-style: italic;
+}
+.file-content h2 {
+  margin-top: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+  .app-container {
+    flex-direction: column;
+  }
+  .content-area {
+    padding: 8px;
+  }
+}

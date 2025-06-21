@@ -1,0 +1,28 @@
+{
+  "name": "root",
+  "type": "folder",
+  "children": [
+    {
+      "name": "Documents",
+      "type": "folder",
+      "children": [
+        { "name": "Resume.pdf", "type": "file" },
+        { "name": "CoverLetter.docx", "type": "file" },
+        {
+          "name": "new",
+          "type": "folder",
+          "children": [
+            { "name": "Resume.pdf", "type": "file" },
+            { "name": "CoverLetter.docx", "type": "file" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Photos",
+      "type": "folder",
+      "children": []
+    },
+    { "name": "todo.txt", "type": "file" }
+  ]
+}
